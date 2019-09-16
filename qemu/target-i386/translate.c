@@ -5008,6 +5008,7 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
     bool changed_cc_op = false;
 
     s->pc = pc_start;
+    s->prefix = 0;
 
     // end address tells us to stop emulation
     if (s->pc == s->uc->addr_end) {
@@ -5144,7 +5145,7 @@ static target_ulong disas_insn(CPUX86State *env, DisasContext *s,
             rex_r = (~vex2 >> 4) & 8;
             if (b == 0xc5) {
                 vex3 = vex2;
-                b = cpu_ldub_code(env, s->pc++);
+                b = cpu_ldub_code(env, s->pc++) | 0x100;
             } else {
 #ifdef TARGET_X86_64
                 s->rex_x = (~vex2 >> 3) & 8;
@@ -8593,7 +8594,8 @@ static inline void gen_intermediate_code_internal(uint8_t *gen_opc_cc_op,
     target_ulong pc_ptr;
     uint16_t *gen_opc_end;
     CPUBreakpoint *bp;
-    int j, lj;
+    int j;
+    int lj = -1;
     uint64_t flags;
     target_ulong pc_start;
     target_ulong cs_base;
@@ -8697,7 +8699,6 @@ static inline void gen_intermediate_code_internal(uint8_t *gen_opc_cc_op,
     gen_opc_end = tcg_ctx->gen_opc_buf + OPC_MAX_SIZE;
 
     dc->is_jmp = DISAS_NEXT;
-    lj = -1;
     max_insns = tb->cflags & CF_COUNT_MASK;
     if (max_insns == 0)
         max_insns = CF_COUNT_MASK;

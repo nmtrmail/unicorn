@@ -34,7 +34,7 @@
 //#define MIPS_DEBUG_SIGN_EXTENSIONS
 
 /* MIPS major opcodes */
-#define MASK_OP_MAJOR(op)  (op & (0x3F << 26))
+#define MASK_OP_MAJOR(op)  (op & (((uint32_t)0x3F) << 26))
 
 enum {
     /* indirect opcode tables */
@@ -19710,6 +19710,9 @@ void cpu_state_reset(CPUMIPSState *env)
             env->active_tc.CP0_TCStatus = (1 << CP0TCSt_A);
             env->tcs[0].CP0_TCStatus = (1 << CP0TCSt_A);
         }
+    }
+    if (env->CP0_Config1 & (1 << CP0C1_FP)) {
+        env->CP0_Status |= (1 << CP0St_CU1);
     }
 #endif
     if ((env->insn_flags & ISA_MIPS32R6) &&
